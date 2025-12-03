@@ -27,6 +27,74 @@ body { font-family: Arial; margin:0; background:white; }
 </div>
 
 <script>
+/* ----------------------------------------
+   LISTA COMPLETA DE MODELOS E VERSÕES
+-------------------------------------------*/
+
+// iOS – Modelos compatíveis
+const modelosIOS = [
+    "iPhone 8", "iPhone 8 Plus", "iPhone X", "iPhone XR", "iPhone XS", "iPhone XS Max",
+    "iPhone 11", "iPhone 11 Pro", "iPhone 11 Pro Max",
+    "iPhone 12", "iPhone 12 Pro", "iPhone 12 Pro Max", "iPhone 12 Mini",
+    "iPhone SE (2020)", "iPhone 13", "iPhone 13 Mini", "iPhone 13 Pro", "iPhone 13 Pro Max",
+    "iPhone SE (2022)", "iPhone 14", "iPhone 14 Plus", "iPhone 14 Pro", "iPhone 14 Pro Max",
+    "iPhone 15", "iPhone 15 Plus", "iPhone 15 Pro", "iPhone 15 Pro Max",
+    "iPhone 16", "iPhone 16 Plus", "iPhone 16 Pro", "iPhone 16 Pro Max", "iPhone 16e"
+];
+
+const versoesIOS = [
+    "15.5","15.6","15.6.1","15.7","15.8.2",
+    "16","16.0.2","16.1","16.7.8",
+    "17","17.0.1","17.0.2","17.0.3","17.1","17.1.1",
+    "17.1.2","17.2","17.2.1","17.3","17.4","17.4.1",
+    "17.5","17.5.1","17.6","17.6.1","17.7","18","18.0.1",
+    "18.2.1","18.3","18.3.1","18.3.2","18.4","18.4.1","18.5"
+];
+
+// ANDROID – Modelos compatíveis
+const modelosAndroid = [
+    "Samsung Galaxy A7", "A10", "A12", "A13", "A13 5G", "A14 5G", "A15", "A15 5G",
+    "A16", "A20", "A20e", "A21", "A22", "A22 5G", "A23", "A23 5G",
+    "A30", "A32", "A32 5G", "A40", "A41", "A42 5G", "A52", "A52 5G",
+    "A70", "A71", "A71 5G", "A72", "Feel2", "Note8", "Note9", "Note10", "Note10+",
+    "Note10 Lite","Note20 Lite","Note20 5G","Note20 Ultra 5G",
+    "S7","S7 Edge","S8","S8+","S9","S9+",
+    "S10","S10 5G","S10 Lite","S10+",
+    "S20","S20 5G","S20 Ultra 5G","S20 FE 5G","S20+",
+    "S21","S21 Ultra","S21 5G","S21 FE",
+    "S22","S22 Ultra","S22+",
+    "S23","S23 Ultra","S23 FE","S24","S24 Ultra","S24+",
+    "Z Flip3","Z Flip4","Z Flip5","Z Flip6",
+    "Z Fold2","Z Fold3","Z Fold4","Z Fold5","Z Fold6",
+    "Asus Zenfone 8",
+    "Diah G65",
+    "Fujitsu Arrows 5G","U",
+    "Google Pixel", "Pixel 2", "Pixel 2 XL", "Pixel 3", "Pixel 3 XL",
+    "Pixel 4", "Pixel 4 XL", "Pixel 4a", "Pixel 5", "Pixel 6", "Pixel 6a",
+    "Pixel 6 Pro","Pixel 7","Pixel 7 Pro",
+    "Pixel 8","Pixel 8 Pro","Pixel 8a",
+    "Pixel 9","Pixel 9 Pro XL","Pixel 9 Pro Fold",
+    "HTC Desire 22 Pro",
+    "Huawei P20 Pro","P30","P30 Pro",
+    "Kyocera Torque G04",
+    "LG style3",
+    "Motorola g51 5G","moto g84 5G",
+    "OPPO Reno A","Reno3 A","Reno5 A",
+    "Sharp AQUOS R3","sense3","sense3 plus",
+    "Sony Xperia 1 II","5","8","Ace II",
+    "Tinno Rakuten Hand",
+    "Xiaomi Redmi Note 8T","Redmi 9","Redmi Note 9T","Redmi Note 9 Pro",
+    "Redmi Note 10 5G","Redmi Note 10 Lite","Redmi 11T Pro",
+    "POCO X3 NFC","Redmi 12"
+];
+
+// Android – versões compatíveis
+const versoesAndroid = ["8", "8.1", "9", "10", "11", "12", "13", "14", "15", "16"];
+
+/* ----------------------------------------
+   FUNÇÃO PARA DETECTAR O DISPOSITIVO
+-------------------------------------------*/
+
 function detectarDispositivo() {
     const ua = navigator.userAgent;
     if (/iPhone|iPad|iPod/i.test(ua)) {
@@ -41,27 +109,40 @@ function detectarDispositivo() {
     return { os: "Desconhecido", versao: "0", modelo: "Desconhecido" };
 }
 
-const versoesIOS = ["15","16","17","18"];
-const versoesAndroid = ["8","9","10","11","12","13","14","15","16"];
-
+/* ----------------------------------------
+   COMPARAÇÃO COM A LISTA
+-------------------------------------------*/
 function verificarCompatibilidade() {
-    const r = detectarDispositivo();
-    let comp = false;
+    const { os, versao, modelo } = detectarDispositivo();
 
-    if (r.os === "iOS") comp = versoesIOS.some(v => r.versao.startsWith(v));
-    if (r.os === "Android") comp = versoesAndroid.some(v => r.versao.startsWith(v));
+    let compativel = false;
 
-    return { ...r, comp };
+    if (os === "iOS") {
+        compativel =
+            versoesIOS.includes(versao) &&
+            modelosIOS.some(m => modelo.toLowerCase().includes(m.toLowerCase()) || modelo === "iPhone");
+    } else if (os === "Android") {
+        compativel =
+            versoesAndroid.some(v => versao.startsWith(v)) &&
+            modelosAndroid.some(m => modelo.toLowerCase().includes(m.toLowerCase()));
+    }
+
+    return { os, versao, modelo, compativel };
 }
 
-const r = verificarCompatibilidade();
+/* ----------------------------------------
+   EXIBIR RESULTADO
+-------------------------------------------*/
 
+
+const r = verificarCompatibilidade();
 document.getElementById("resultado").innerHTML = `
-<b>Sistema:</b> ${r.os}<br>
-<b>Versão:</b> ${r.versao}<br>
-<b>Modelo detectado:</b> ${r.modelo}<br><br>
-${
-  r.comp
+    <b>Sistema:</b> ${r.os}<br>
+    <b>Versão:</b> ${r.versao}<br>
+    <b>Modelo detectado:</b> ${r.modelo}<br><br>
+
+    ${r.compativel
+
     ? "<span style='color:green;font-size:24px;'>✔ COMPATÍVEL</span><br><br><a class='btn' href='https://apps.apple.com/br/app/freestyle-librelink-br/id1448904780'>Baixar na App Store</a><a class='btn' href='https://play.google.com/store/apps/details?id=com.freestylelibre.app.br&pcampaignid=web_share'>Baixar no Google Play</a>"
     : "<span style='color:red;font-size:24px;'>✘ NÃO COMPATÍVEL</span><br><br>Este dispositivo não suporta o aplicativo."
 }`;
@@ -69,3 +150,4 @@ ${
 
 </body>
 </html>
+
