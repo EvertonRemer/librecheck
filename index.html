@@ -95,65 +95,55 @@ const versoesAndroid = ["8", "8.1", "9", "10", "11", "12", "13", "14", "15", "16
    FUNÇÃO PARA DETECTAR O DISPOSITIVO
 -------------------------------------------*/
 
+function detectarModeloIphone() {
+    const ratio = window.devicePixelRatio;
+    const { width, height } = screen;
+
+    const modelos = [
+        { modelo: "iPhone SE (1ª geração)", w: 320, h: 568, r: 2 },
+        { modelo: "iPhone 6/7/8", w: 375, h: 667, r: 2 },
+        { modelo: "iPhone 6+/7+/8+", w: 414, h: 736, r: 3 },
+        { modelo: "iPhone X / XS / 11 Pro", w: 375, h: 812, r: 3 },
+        { modelo: "iPhone XR / 11", w: 414, h: 896, r: 2 },
+        { modelo: "iPhone XS Max / 11 Pro Max", w: 414, h: 896, r: 3 },
+        { modelo: "iPhone 12 mini / 13 mini", w: 360, h: 780, r: 3 },
+        { modelo: "iPhone 12 / 12 Pro / 13 / 13 Pro / 14", w: 390, h: 844, r: 3 },
+        { modelo: "iPhone 12 Pro Max / 13 Pro Max / 14 Plus", w: 428, h: 926, r: 3 },
+        { modelo: "iPhone 14 Pro", w: 393, h: 852, r: 3 },
+        { modelo: "iPhone 14 Pro Max", w: 430, h: 932, r: 3 },
+        { modelo: "iPhone 15 / 15 Pro", w: 393, h: 852, r: 3 },
+        { modelo: "iPhone 15 Plus / 15 Pro Max", w: 430, h: 932, r: 3 }
+    ];
+
+    const encontrado = modelos.find(
+        m => m.w === Math.min(width, height) &&
+             m.h === Math.max(width, height) &&
+             m.r === ratio
+    );
+
+    return encontrado ? encontrado.modelo : "iPhone (modelo não identificado)";
+}
 function detectarDispositivo() {
     const ua = navigator.userAgent;
-    let modelo = "Desconhecido";
 
-    // ----------------------------------------
-    // iOS (iPhone, iPad)
-    // ----------------------------------------
+    // iOS
     if (/iPhone|iPad|iPod/i.test(ua)) {
-
-        // 1) Captura versão do iOS
         const versao = (ua.match(/OS (\d+_\d+)/) || [])[1]?.replace("_", ".") || "0";
-
-        // 2) Tenta obter modelo real (iPhone 12, iPhone 14 Pro, etc.)
-        //    navigator.userAgentData (novo formato)
-        if (navigator.userAgentData?.platform === "iOS") {
-            const brands = navigator.userAgentData.brands || [];
-            const apple = brands.find(b => b.brand.includes("iPhone"));
-            if (apple) modelo = apple.brand;
-        }
-
-        // 3) Se não existir userAgentData, tenta buscar no próprio userAgent
-        // Exemplos: "iPhone13,4", "iPhone14,7"
-        const modeloMatch = ua.match(/iPhone\d+,\d+/);
-        if (modeloMatch) modelo = modeloMatch[0];
-
-        // 4) fallback
-        if (modelo === "Desconhecido") modelo = "iPhone";
-
+        const modelo = detectarModeloIphone(); // ⬅ aqui entra a detecção real
         return { os: "iOS", versao, modelo };
     }
 
-    // ----------------------------------------
-    // ANDROID
-    // ----------------------------------------
+    // Android
     if (/Android/i.test(ua)) {
-
         const versao = (ua.match(/Android\s([\d\.]+)/) || [])[1] || "0";
 
-        // Capturar modelo Android REAL
-        // Normalmente vem entre ";" e "Build/"
-        let modeloMatch = ua.match(/Android.*?;\s*(.*?)\s*Build/i);
-
-        if (modeloMatch && modeloMatch[1]) {
-            modelo = modeloMatch[1].trim();
-        } else {
-            // fallback antigo
-            const partes = ua.split(";");
-            modelo = (partes[2] || "").trim();
-        }
+        // Modelos Android vêm no User-Agent:
+        const modelo = (ua.match(/; ([^;]*) Build/) || [])[1]?.trim() || "Modelo não identificado";
 
         return { os: "Android", versao, modelo };
     }
 
-    // ----------------------------------------
-    // Outro sistema
-    // ----------------------------------------
     return { os: "Desconhecido", versao: "0", modelo: "Desconhecido" };
-}
-
 }
 
 /* ----------------------------------------
@@ -197,6 +187,7 @@ document.getElementById("resultado").innerHTML = `
 
 </body>
 </html>
+
 
 
 
